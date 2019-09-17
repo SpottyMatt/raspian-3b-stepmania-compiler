@@ -1,5 +1,5 @@
 DISTRO=$(shell dpkg --status tzdata|grep Provides|cut -f2 -d'-')
-RPI_MODEL=$(shell ./rpi-hw-info/rpi-hw-info.py | awk -F ':' '{print $$1}')
+RPI_MODEL=$(shell ./rpi-hw-info/rpi-hw-info.py 2>/dev/null | awk -F ':' '{print $$1}')
 
 ifeq ($(RPI_MODEL),4B)
 PARALLELISM=-j3
@@ -8,8 +8,17 @@ PARALLELISM=-j1
 endif
 
 .PHONY: all
+
+ifeq ($(RPI_MODEL,)
 all:
-	git submodule update
+	git submodule init rpi-hw-info
+	git submodule update rpi-hw-info
+	$(MAKE) $@
+else
+all:
+	git submodule init rpi-hw-info
+	git submodule update rpi-hw-info
+	$(MAKE) print
 	$(MAKE) system-prep
 	$(MAKE) stepmania-prep
 	$(MAKE) stepmania-build
@@ -67,3 +76,5 @@ stepmania-build:
 .PHONY: stepmania-install
 stepmania-install:
 	$(MAKE) --dir stepmania install
+
+endif
