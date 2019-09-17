@@ -1,5 +1,5 @@
 DISTRO=$(shell dpkg --status tzdata|grep Provides|cut -f2 -d'-')
-RPI_MODEL=$(shell ./stepmania-build/rpi-hw-info.py | awk -F ':' '{print $$1}')
+RPI_MODEL=$(shell ./rpi-hw-info/rpi-hw-info.py | awk -F ':' '{print $$1}')
 
 ifeq ($(RPI_MODEL),4B)
 PARALLELISM=-j3
@@ -9,6 +9,7 @@ endif
 
 .PHONY: all
 all:
+	git submodule update
 	$(MAKE) system-prep
 	$(MAKE) stepmania-prep
 	$(MAKE) stepmania-build
@@ -39,8 +40,8 @@ build-prep: ./stepmania-build/deps/$(DISTRO).list
 
 .PHONY: stepmania-prep
 .ONESHELL:
-stepmania-prep: ARM_CPU=$(shell ./stepmania-build/rpi-hw-info.py | awk -F ':' '{print $$5}')
-stepmania-prep: ARM_FPU=$(shell ./stepmania-build/rpi-hw-info.py | awk -F ':' '{print $$6}')
+stepmania-prep: ARM_CPU=$(shell ./rpi-hw-info/rpi-hw-info.py | awk -F ':' '{print $$5}')
+stepmania-prep: ARM_FPU=$(shell ./rpi-hw-info/rpi-hw-info.py | awk -F ':' '{print $$6}')
 stepmania-prep:
 	git submodule init
 	git submodule update
